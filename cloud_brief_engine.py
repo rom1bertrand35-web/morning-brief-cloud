@@ -117,7 +117,8 @@ def run_cloud_brief():
         print("Recherche des modèles autorisés pour cette clé...")
         available_models = []
         for model in client.models.list():
-            if 'generateContent' in model.supported_generation_methods:
+            # Dans le nouveau SDK, on vérifie juste que le nom contient 'gemini'
+            if 'gemini' in model.name.lower():
                 available_models.append(model.name)
                 print(f" - {model.name}")
                 
