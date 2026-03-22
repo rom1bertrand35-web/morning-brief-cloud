@@ -110,30 +110,22 @@ def run_cloud_brief():
     """
 
     try:
-        print("🤖 Initialisation de Gemini...")
+        print("🤖 Gemini génère le contenu...")
+        import urllib.request
+        import json
         
-        # DEBUG: Afficher la version de la librairie et les modèles disponibles
-        try:
-            import google.generativeai as genai_debug
-            print(f"Version de google-generativeai: {getattr(genai_debug, '__version__', 'inconnue')}")
-            print("Modèles disponibles pour cette clé API :")
-            for m in genai.list_models():
-                if 'generateContent' in m.supported_generation_methods:
-                    print(f" - {m.name}")
-        except Exception as debug_e:
-            print(f"Impossible de lister les modèles : {debug_e}")
-
-        try:
-            # Essai du modèle récent et rapide
-            model = genai.GenerativeModel('models/gemini-1.5-flash')
-            response = model.generate_content(prompt)
-        except Exception as e:
-            print(f"⚠️ Le modèle 1.5 a échoué ({e}), tentative avec le modèle pro...")
-            # Fallback absolu
-            model = genai.GenerativeModel('models/gemini-pro')
-            response = model.generate_content(prompt)
-            
-        content = response.text
+        # On utilise directement l'API REST v1beta pour bypasser le SDK capricieux
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={gemini_api_key}"
+        headers = {'Content-Type': 'application/json'}
+        data = {
+            "contents": [{"parts": [{"text": prompt}]}],
+            "generationConfig": {"temperature": 0.7}
+        }
+        req = urllib.request.Request(url, data=json.dumps(data).encode('utf-8'), headers=headers)
+        
+        with urllib.request.urlopen(req) as response:
+            response_data = json.loads(response.read().decode())
+            content = response_data['candidates'][0]['content']['parts'][0]['text']
 
         print("📄 Création du Google Doc...")
         doc = docs_service.documents().create(body={'title': f"SALADE_TOMATE_ALGO - {DATE_STR}"}).execute()
