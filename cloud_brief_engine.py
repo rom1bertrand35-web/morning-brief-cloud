@@ -7,7 +7,16 @@ from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 
 # Configuration
-SCOPES = ['https://www.googleapis.com/auth/documents', 'https://www.googleapis.com/auth/drive.file', 'https://www.googleapis.com/auth/drive.readonly']
+SCOPES = [
+    "https://www.googleapis.com/auth/gmail.modify",
+    "https://www.googleapis.com/auth/calendar.readonly",
+    "https://www.googleapis.com/auth/drive.file",
+    "https://www.googleapis.com/auth/documents",
+    "https://www.googleapis.com/auth/spreadsheets.readonly",
+    "https://www.googleapis.com/auth/analytics.readonly",
+    "https://www.googleapis.com/auth/webmasters.readonly", 
+    "https://www.googleapis.com/auth/youtube.readonly",
+]
 DATE_STR = datetime.date.today().strftime("%d/%m/%Y")
 DAY_NAME = datetime.date.today().strftime("%A")
 
