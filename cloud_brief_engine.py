@@ -108,10 +108,33 @@ def run_cloud_brief():
     """
 
     try:
-        print("🤖 Gemini génère le contenu via le NOUVEAU SDK Python...")
-        # Utilisation de la nouvelle syntaxe API
+        print("🤖 Initialisation de Gemini...")
+        
+        # Debug de la clé (en toute sécurité)
+        safe_key = gemini_api_key.strip()
+        print(f"Clé API détectée : commence par '{safe_key[:4]}' (longueur: {len(safe_key)})")
+        
+        print("Recherche des modèles autorisés pour cette clé...")
+        available_models = []
+        for model in client.models.list():
+            if 'generateContent' in model.supported_generation_methods:
+                available_models.append(model.name)
+                print(f" - {model.name}")
+                
+        if not available_models:
+            raise ValueError("Aucun modèle de génération de texte n'est autorisé pour cette clé API.")
+            
+        # On choisit intelligemment le meilleur modèle dispo (priorité à la série 1.5 ou 2.0)
+        chosen_model = available_models[0]
+        for m in available_models:
+            if 'flash' in m.lower():
+                chosen_model = m
+                break
+        
+        print(f"🚀 Modèle sélectionné automatiquement : {chosen_model}")
+
         response = client.models.generate_content(
-            model='gemini-1.5-flash',
+            model=chosen_model,
             contents=prompt,
         )
         content = response.text
