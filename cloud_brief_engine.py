@@ -1,6 +1,7 @@
 import os
 import datetime
 import json
+import google.generativeai as genai
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
@@ -20,7 +21,7 @@ DATE_STR = datetime.date.today().strftime("%d/%m/%Y")
 DAY_NAME = datetime.date.today().strftime("%A")
 
 def get_google_service(api_name, api_version):
-    """Initialise les services Google avec les credentials stockés dans les variables d'environnement."""
+    """Initialise les services Google Docs/Drive avec les credentials OAuth."""
     creds_json = os.environ.get('GOOGLE_CREDENTIALS_JSON')
     if not creds_json:
         raise ValueError("La variable d'environnement GOOGLE_CREDENTIALS_JSON est manquante.")
@@ -54,10 +55,7 @@ def get_previous_topics(drive_service, docs_service):
                 if 'paragraph' in element:
                     for run in element.get('paragraph').get('elements'):
                         content += run.get('textRun', {}).get('content', '')
-            
-            # On prend juste le début (500 caractères) de chaque pour le contexte
             topics += content[:500] + "\n"
-            
         return topics
     except Exception as e:
         print(f"Erreur lors de la récupération du contexte: {e}")
@@ -69,10 +67,9 @@ def run_cloud_brief():
     gemini_api_key = os.environ.get("GEMINI_API_KEY")
     if not gemini_api_key:
         raise ValueError("La variable d'environnement GEMINI_API_KEY est manquante.")
-    
-    # Très important : enlever les espaces ou sauts de ligne invisibles
-    gemini_api_key = gemini_api_key.strip()
         
+    genai.configure(api_key=gemini_api_key.strip())
+    
     drive_service = get_google_service('drive', 'v3')
     docs_service = get_google_service('docs', 'v1')
     
@@ -110,21 +107,11 @@ def run_cloud_brief():
     """
 
     try:
-        print("🤖 Gemini génère le contenu via REST API...")
-        import urllib.request
-        import json
-        
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={gemini_api_key}"
-        headers = {'Content-Type': 'application/json'}
-        data = {
-            "contents": [{"parts": [{"text": prompt}]}],
-            "generationConfig": {"temperature": 0.7}
-        }
-        
-        req = urllib.request.Request(url, data=json.dumps(data).encode('utf-8'), headers=headers)
-        with urllib.request.urlopen(req) as response:
-            response_data = json.loads(response.read().decode())
-            content = response_data['candidates'][0]['content']['parts'][0]['text']
+        print("🤖 Gemini génère le contenu via SDK Python...")
+        # Essai du modèle avec l'alias le plus sûr en SDK
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        response = model.generate_content(prompt)
+        content = response.text
 
         print("📄 Création du Google Doc...")
         doc = docs_service.documents().create(body={'title': f"SALADE_TOMATE_ALGO - {DATE_STR}"}).execute()
@@ -136,9 +123,6 @@ def run_cloud_brief():
             
         print(f"✅ Terminé ! Le brief est disponible ici : https://docs.google.com/document/d/{doc_id}")
         
-    except urllib.error.HTTPError as e:
-        print(f"❌ Erreur API Gemini (HTTP {e.code}) : {e.read().decode()}")
-        raise e
     except Exception as e:
         print(f"❌ Erreur lors de l'exécution : {e}")
         raise e
