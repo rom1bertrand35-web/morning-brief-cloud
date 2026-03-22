@@ -110,15 +110,27 @@ def run_cloud_brief():
     """
 
     try:
-        print("🤖 Gemini génère le contenu...")
+        print("🤖 Initialisation de Gemini...")
+        
+        # DEBUG: Afficher la version de la librairie et les modèles disponibles
+        try:
+            import google.generativeai as genai_debug
+            print(f"Version de google-generativeai: {getattr(genai_debug, '__version__', 'inconnue')}")
+            print("Modèles disponibles pour cette clé API :")
+            for m in genai.list_models():
+                if 'generateContent' in m.supported_generation_methods:
+                    print(f" - {m.name}")
+        except Exception as debug_e:
+            print(f"Impossible de lister les modèles : {debug_e}")
+
         try:
             # Essai du modèle récent et rapide
-            model = genai.GenerativeModel('gemini-1.5-flash')
+            model = genai.GenerativeModel('models/gemini-1.5-flash')
             response = model.generate_content(prompt)
         except Exception as e:
-            print(f"⚠️ Le modèle 1.5 a échoué ({e}), tentative avec le modèle de base...")
+            print(f"⚠️ Le modèle 1.5 a échoué ({e}), tentative avec le modèle pro...")
             # Fallback absolu
-            model = genai.GenerativeModel('gemini-1.0-pro')
+            model = genai.GenerativeModel('models/gemini-pro')
             response = model.generate_content(prompt)
             
         content = response.text
