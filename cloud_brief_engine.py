@@ -69,6 +69,9 @@ def run_cloud_brief():
     gemini_api_key = os.environ.get("GEMINI_API_KEY")
     if not gemini_api_key:
         raise ValueError("La variable d'environnement GEMINI_API_KEY est manquante.")
+    
+    # Très important : enlever les espaces ou sauts de ligne invisibles
+    gemini_api_key = gemini_api_key.strip()
         
     drive_service = get_google_service('drive', 'v3')
     docs_service = get_google_service('docs', 'v1')
@@ -111,7 +114,7 @@ def run_cloud_brief():
         import urllib.request
         import json
         
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={gemini_api_key}"
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={gemini_api_key}"
         headers = {'Content-Type': 'application/json'}
         data = {
             "contents": [{"parts": [{"text": prompt}]}],
