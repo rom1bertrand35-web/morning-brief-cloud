@@ -111,8 +111,8 @@ def run_cloud_brief():
 
     try:
         print("🤖 Gemini génère le contenu...")
-        # Utilisation du modèle le plus stable et rapide
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        # Utilisation du modèle le plus stable et universel
+        model = genai.GenerativeModel('gemini-pro')
         response = model.generate_content(prompt)
         content = response.text
 
