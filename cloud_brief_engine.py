@@ -110,22 +110,12 @@ def run_cloud_brief():
     """
 
     try:
-        print("🤖 Gemini génère le contenu...")
-        import urllib.request
-        import json
+        print("🤖 Gemini génère le contenu via CLI...")
+        import subprocess
         
-        # On utilise directement l'API REST v1beta
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={gemini_api_key}"
-        headers = {'Content-Type': 'application/json'}
-        data = {
-            "contents": [{"parts": [{"text": prompt}]}],
-            "generationConfig": {"temperature": 0.7}
-        }
-        req = urllib.request.Request(url, data=json.dumps(data).encode('utf-8'), headers=headers)
-        
-        with urllib.request.urlopen(req) as response:
-            response_data = json.loads(response.read().decode())
-            content = response_data['candidates'][0]['content']['parts'][0]['text']
+        # Le CLI gemini est installé globalement dans l'environnement GitHub
+        result = subprocess.run(["gemini", "-p", prompt], capture_output=True, text=True, check=True)
+        content = result.stdout
 
         print("📄 Création du Google Doc...")
         doc = docs_service.documents().create(body={'title': f"SALADE_TOMATE_ALGO - {DATE_STR}"}).execute()
@@ -137,6 +127,9 @@ def run_cloud_brief():
             
         print(f"✅ Terminé ! Le brief est disponible ici : https://docs.google.com/document/d/{doc_id}")
         
+    except subprocess.CalledProcessError as e:
+        print(f"❌ Erreur CLI Gemini : {e.stderr}")
+        raise e
     except Exception as e:
         print(f"❌ Erreur lors de l'exécution : {e}")
         raise e

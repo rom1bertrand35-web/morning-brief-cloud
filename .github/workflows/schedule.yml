@@ -21,11 +21,24 @@ jobs:
         python-version: '3.10'
         cache: 'pip'
 
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
     - name: Install dependencies
-      run: pip install -r requirements.txt
+      run: |
+        npm install -g @google/gemini-cli
+        pip install -r requirements.txt
+
+    - name: Configure Gemini CLI
+      run: |
+        mkdir -p ~/.gemini
+        echo '${{ secrets.GOOGLE_CREDENTIALS_JSON }}' > ~/.gemini/token.json
+        echo '${{ secrets.GOOGLE_CREDENTIALS_APP }}' > ~/.gemini/credentials.json
+        echo '{"models":{"model":"gemini-1.5-pro"}}' > ~/.gemini/settings.json
 
     - name: Run Morning Brief Script
       env:
-        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         GOOGLE_CREDENTIALS_JSON: ${{ secrets.GOOGLE_CREDENTIALS_JSON }}
       run: python cloud_brief_engine.py
