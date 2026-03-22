@@ -111,9 +111,16 @@ def run_cloud_brief():
 
     try:
         print("🤖 Gemini génère le contenu...")
-        # Utilisation du modèle le plus stable et universel
-        model = genai.GenerativeModel('gemini-pro')
-        response = model.generate_content(prompt)
+        try:
+            # Essai du modèle récent et rapide
+            model = genai.GenerativeModel('gemini-1.5-flash')
+            response = model.generate_content(prompt)
+        except Exception as e:
+            print(f"⚠️ Le modèle 1.5 a échoué ({e}), tentative avec le modèle de base...")
+            # Fallback absolu
+            model = genai.GenerativeModel('gemini-1.0-pro')
+            response = model.generate_content(prompt)
+            
         content = response.text
 
         print("📄 Création du Google Doc...")
