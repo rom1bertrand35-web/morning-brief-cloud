@@ -111,7 +111,7 @@ def run_cloud_brief():
         import urllib.request
         import json
         
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={gemini_api_key}"
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key={gemini_api_key}"
         headers = {'Content-Type': 'application/json'}
         data = {
             "contents": [{"parts": [{"text": prompt}]}],
