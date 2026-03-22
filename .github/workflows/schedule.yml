@@ -36,7 +36,7 @@ jobs:
         mkdir -p ~/.gemini
         echo '${{ secrets.GOOGLE_CREDENTIALS_JSON }}' > ~/.gemini/token.json
         echo '${{ secrets.GOOGLE_CREDENTIALS_APP }}' > ~/.gemini/credentials.json
-        echo '{"models":{"model":"gemini-1.5-pro"}}' > ~/.gemini/settings.json
+        echo '{"security":{"auth":{"selectedType":"oauth-personal"}},"models":{"model":"gemini-1.5-pro"}}' > ~/.gemini/settings.json
 
     - name: Run Morning Brief Script
       env:
