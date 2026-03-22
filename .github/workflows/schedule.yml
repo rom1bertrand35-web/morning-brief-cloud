@@ -1,0 +1,31 @@
+name: Daily Morning Brief Generator
+
+on:
+  schedule:
+    # 05:00 UTC corresponds to 06:00 CET (Paris time) in winter, and 07:00 CEST in summer.
+    # We set it to 05:00 UTC.
+    - cron: '0 5 * * *'
+  workflow_dispatch: # Allows manual trigger from the GitHub Actions UI
+
+jobs:
+  generate-brief:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: pip install -r requirements.txt
+
+    - name: Run Morning Brief Script
+      env:
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        GOOGLE_CREDENTIALS_JSON: ${{ secrets.GOOGLE_CREDENTIALS_JSON }}
+      run: python cloud_brief_engine.py
