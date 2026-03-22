@@ -67,6 +67,10 @@ def get_previous_topics(drive_service, docs_service):
 def run_cloud_brief():
     print(f"🚀 Lancement du Brief Haute Précision CLOUD pour le {DATE_STR}...")
     
+    gemini_api_key = os.environ.get("GEMINI_API_KEY")
+    if not gemini_api_key:
+        raise ValueError("La variable d'environnement GEMINI_API_KEY est manquante.")
+        
     drive_service = get_google_service('drive', 'v3')
     docs_service = get_google_service('docs', 'v1')
     
@@ -104,12 +108,21 @@ def run_cloud_brief():
     """
 
     try:
-        print("🤖 Gemini génère le contenu via CLI...")
-        import subprocess
+        print("🤖 Gemini génère le contenu via REST API...")
+        import urllib.request
+        import json
         
-        # Le CLI gemini est installé globalement dans l'environnement GitHub
-        result = subprocess.run(["gemini", "-p", prompt], capture_output=True, text=True, check=True)
-        content = result.stdout
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={gemini_api_key}"
+        headers = {'Content-Type': 'application/json'}
+        data = {
+            "contents": [{"parts": [{"text": prompt}]}],
+            "generationConfig": {"temperature": 0.7}
+        }
+        
+        req = urllib.request.Request(url, data=json.dumps(data).encode('utf-8'), headers=headers)
+        with urllib.request.urlopen(req) as response:
+            response_data = json.loads(response.read().decode())
+            content = response_data['candidates'][0]['content']['parts'][0]['text']
 
         print("📄 Création du Google Doc...")
         doc = docs_service.documents().create(body={'title': f"SALADE_TOMATE_ALGO - {DATE_STR}"}).execute()
@@ -121,8 +134,8 @@ def run_cloud_brief():
             
         print(f"✅ Terminé ! Le brief est disponible ici : https://docs.google.com/document/d/{doc_id}")
         
-    except subprocess.CalledProcessError as e:
-        print(f"❌ Erreur CLI Gemini : {e.stderr}")
+    except urllib.error.HTTPError as e:
+        print(f"❌ Erreur API Gemini (HTTP {e.code}) : {e.read().decode()}")
         raise e
     except Exception as e:
         print(f"❌ Erreur lors de l'exécution : {e}")
