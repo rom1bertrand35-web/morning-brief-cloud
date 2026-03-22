@@ -112,7 +112,7 @@ def run_cloud_brief():
     try:
         print("🤖 Gemini génère le contenu...")
         # Utilisation du modèle le plus puissant pour des textes longs
-        model = genai.GenerativeModel('gemini-1.5-pro')
+        model = genai.GenerativeModel('gemini-1.5-pro-latest')
         response = model.generate_content(prompt)
         content = response.text
 
