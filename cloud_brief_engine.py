@@ -67,12 +67,6 @@ def get_previous_topics(drive_service, docs_service):
 def run_cloud_brief():
     print(f"🚀 Lancement du Brief Haute Précision CLOUD pour le {DATE_STR}...")
     
-    gemini_api_key = os.environ.get("GEMINI_API_KEY")
-    if not gemini_api_key:
-        raise ValueError("La variable d'environnement GEMINI_API_KEY est manquante.")
-        
-    genai.configure(api_key=gemini_api_key)
-    
     drive_service = get_google_service('drive', 'v3')
     docs_service = get_google_service('docs', 'v1')
     
