@@ -1,7 +1,7 @@
 import os
 import datetime
 import json
-import google.generativeai as genai
+from google import genai
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
@@ -68,7 +68,8 @@ def run_cloud_brief():
     if not gemini_api_key:
         raise ValueError("La variable d'environnement GEMINI_API_KEY est manquante.")
         
-    genai.configure(api_key=gemini_api_key.strip())
+    # Initialisation du nouveau client
+    client = genai.Client(api_key=gemini_api_key.strip())
     
     drive_service = get_google_service('drive', 'v3')
     docs_service = get_google_service('docs', 'v1')
@@ -107,10 +108,12 @@ def run_cloud_brief():
     """
 
     try:
-        print("🤖 Gemini génère le contenu via SDK Python...")
-        # Essai du modèle avec l'alias le plus sûr en SDK
-        model = genai.GenerativeModel('gemini-1.5-flash')
-        response = model.generate_content(prompt)
+        print("🤖 Gemini génère le contenu via le NOUVEAU SDK Python...")
+        # Utilisation de la nouvelle syntaxe API
+        response = client.models.generate_content(
+            model='gemini-1.5-flash',
+            contents=prompt,
+        )
         content = response.text
 
         print("📄 Création du Google Doc...")
