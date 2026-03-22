@@ -114,8 +114,8 @@ def run_cloud_brief():
         import urllib.request
         import json
         
-        # On utilise directement l'API REST v1beta pour bypasser le SDK capricieux
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={gemini_api_key}"
+        # On utilise directement l'API REST v1beta
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={gemini_api_key}"
         headers = {'Content-Type': 'application/json'}
         data = {
             "contents": [{"parts": [{"text": prompt}]}],
